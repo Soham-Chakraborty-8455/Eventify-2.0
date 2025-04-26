@@ -9,6 +9,10 @@ const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const path = require("path");
 
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const nodemailer = require("nodemailer");
+
 const Ticket = require("./models/Ticket");
 
 const app = express();
@@ -250,6 +254,72 @@ app.delete("/tickets/:id", async (req, res) => {
    } catch (error) {
       console.error("Error deleting ticket:", error);
       res.status(500).json({ error: "Failed to delete ticket" });
+   }
+});
+
+app.get("/verify-ticket/:eventId/:userId", async (req, res) => {
+   const { eventId, userId } = req.params;
+
+   try {
+      const ticket = await Ticket.findOne({ userid: userId, eventid: eventId });
+      if (!ticket) {
+         return res.status(404).json({ error: "Ticket not found" });
+      }
+
+      // Generate certificate
+      const certDir = path.join(__dirname, "certificate");
+      if (!fs.existsSync(certDir)) {
+         fs.mkdirSync(certDir);
+      }
+
+      const certPath = path.join(certDir, `${userId}_${eventId}.pdf`);
+      const doc = new PDFDocument();
+      doc.pipe(fs.createWriteStream(certPath));
+
+      doc.fontSize(20).text("Event Participation Certificate", { align: "center" });
+      doc.moveDown();
+      doc.fontSize(14).text(`This certifies that ${ticket.ticketDetails.name} has participated in:`);
+      doc.moveDown();
+      doc.text(`Event: ${ticket.ticketDetails.eventname}`);
+      doc.text(`Date: ${ticket.ticketDetails.eventdate.toDateString()}`);
+      doc.text(`Time: ${ticket.ticketDetails.eventtime}`);
+      doc.end();
+
+      // Send certificate by email
+      const user = await UserModel.findById(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const transporter = nodemailer.createTransport({
+         service: "gmail",
+         auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+         },
+      });
+
+      const mailOptions = {
+         from: process.env.EMAIL_USER,
+         to: ticket.ticketDetails.email,
+         subject: "Your Event Participation Certificate",
+         text: `Hi ${ticket.ticketDetails.name},\n\nPlease find your certificate attached.`,
+         attachments: [
+            {
+               filename: `${ticket.ticketDetails.email}_${ticket.ticketDetails.eventname}_${ticket.ticketDetails.eventdate}certificate.pdf`,
+               path: certPath,
+            },
+         ],
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+         if (error) {
+            console.error("Email error:", error);
+            return res.status(500).json({ error: "Failed to send email" });
+         }
+         res.json({ message: "Certificate sent successfully" });
+      });
+   } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal server error" });
    }
 });
 
