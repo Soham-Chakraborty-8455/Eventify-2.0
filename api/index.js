@@ -290,13 +290,17 @@ app.get("/verify-ticket/:eventId/:userId", async (req, res) => {
       if (!user) return res.status(404).json({ error: "User not found" });
 
       const transporter = nodemailer.createTransport({
-         service: "gmail",
+         host: "smtp.gmail.com",
+         port: 587,            
+         secure: false,        
          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+           user: process.env.EMAIL_USER,
+           pass: process.env.EMAIL_PASS,
          },
-      });
-
+         tls: {
+           rejectUnauthorized: false,
+         },
+       });
       const mailOptions = {
          from: process.env.EMAIL_USER,
          to: ticket.ticketDetails.email,
