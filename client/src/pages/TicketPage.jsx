@@ -14,7 +14,7 @@ export default function TicketPage() {
       if (user) {
         fetchTickets()
       }
-    }, );
+    },[user] );
   
     const fetchTickets = async()=>{
       axios.get(`/tickets/user/${user._id}`)
