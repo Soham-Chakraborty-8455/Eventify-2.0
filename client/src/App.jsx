@@ -19,7 +19,9 @@ import TicketPage from './pages/TicketPage'
 import CreatEvent from './pages/CreateEvent'
 import QrCodeReader from './pages/QrCodeReader'
 
-axios.defaults.baseURL = 'https://eventify-2-0.onrender.com/';
+// axios.defaults.baseURL = 'https://eventify-2-0.onrender.com/';
+axios.defaults.baseURL = 'http://localhost:4000';
+
 axios.defaults.withCredentials=true;
 
 function App() {

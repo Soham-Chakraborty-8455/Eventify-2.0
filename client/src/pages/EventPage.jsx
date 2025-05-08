@@ -61,7 +61,7 @@ if (!event) return '';
           </Link>
       </div>
       <div className="mx-2">
-          <h2 className="text-md md:text-xl font-bold mt-3 text-primarydark">{event.ticketPrice === 0? 'Free' : 'LKR. '+ event.ticketPrice}</h2>
+          <h2 className="text-md md:text-xl font-bold mt-3 text-primarydark">{event.ticketPrice === 0? 'Free' : 'INR. '+ event.ticketPrice}</h2>
       </div>
       <div className="mx-2 mt-5 text-md md:text-lg truncate-3-lines">
         {event.description}

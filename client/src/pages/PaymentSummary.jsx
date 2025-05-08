@@ -252,7 +252,7 @@ export default function PaymentSummary() {
           </div>
           <div className="float-right">
             <p className="text-sm font-semibold pb-2 pt-8">
-              Total : LKR. {event.ticketPrice}
+              Total : INR. {event.ticketPrice}
             </p>
             <Link to={"/"}>
               <button type="button" onClick={createTicket} className="primary">
@@ -272,7 +272,7 @@ export default function PaymentSummary() {
           <p className="text-xs">{event.eventDate.split("T")[0]},</p>
           <p className="text-xs pb-2"> {event.eventTime}</p>
           <hr className=" my-2 border-t pt-2 border-gray-400" />
-          <p className="float-right font-bold">LKR. {event.ticketPrice}</p>
+          <p className="float-right font-bold">INR. {event.ticketPrice}</p>
           <p className="font-bold">Sub total: {event.ticketPrice}</p>
         </div>
       </div>
